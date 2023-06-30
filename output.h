@@ -119,15 +119,14 @@ void writeFile(const std::string& fontPath, int pixelHeight, const std::string& 
         if (cmapSubtableNum == 0 || glyphs.size() + chGlyphSize > 65536 || (ch - prevCh - 1) > 4) {
             // new cmap subtable
             if (cmapSubtableNum > 0) {
-                std::cerr << ((cmapSubtableUnicodeStart) & 0xFF) << ", " << cmapSubtableUnicodeNum << "\n";
-                cmapSubtableDesc.push_back((cmapSubtableUnicodeStart >> 8) & 0xFF);
-                cmapSubtableDesc.push_back((cmapSubtableUnicodeStart) & 0xFF);
-                cmapSubtableDesc.push_back((cmapSubtableUnicodeNum >> 8) & 0xFF);
-                cmapSubtableDesc.push_back((cmapSubtableUnicodeNum) & 0xFF);
-                cmapSubtableDesc.push_back((cmapAddrRel >> 24) & 0xFF);
-                cmapSubtableDesc.push_back((cmapAddrRel >> 16) & 0xFF);
-                cmapSubtableDesc.push_back((cmapAddrRel >> 8) & 0xFF);
-                cmapSubtableDesc.push_back((cmapAddrRel) & 0xFF);
+                cmapSubtableDesc.push_back(cmapSubtableUnicodeStart >> 8);
+                cmapSubtableDesc.push_back(cmapSubtableUnicodeStart);
+                cmapSubtableDesc.push_back(cmapSubtableUnicodeNum >> 8);
+                cmapSubtableDesc.push_back(cmapSubtableUnicodeNum);
+                cmapSubtableDesc.push_back(cmapAddrRel >> 24);
+                cmapSubtableDesc.push_back(cmapAddrRel >> 16);
+                cmapSubtableDesc.push_back(cmapAddrRel >> 8);
+                cmapSubtableDesc.push_back(cmapAddrRel);
                 cmapSubtableDescs.emplace_back(cmapSubtableUnicodeStart, cmapSubtableUnicodeNum, cmapAddrRel);
                 cmapSubtables.insert(cmapSubtables.end(), cmapSubtable.begin(), cmapSubtable.end());
                 cmapSubtables.insert(cmapSubtables.end(), glyphs.begin(), glyphs.end());
@@ -209,7 +208,9 @@ void writeFile(const std::string& fontPath, int pixelHeight, const std::string& 
     cpp << "" << "\n";
     cpp << "#include \"font.h\"" << "\n";
     cpp << "" << "\n";
-    cpp << "const sq::FontSubtableDescriptor " << outputName << "_desc[] = {\n";
+    cpp << "// Binary size: " << (2 + cmapSubtableDesc.size() + cmapSubtables.size() + 1023) / 1024 << "KB" << "\n";
+    cpp << "" << "\n";
+    cpp << "const sq::FontSubtableDescriptor " << outputName << "_desc[] PROGMEM = {\n";
     for (auto& desc: cmapSubtableDescs) {
         cpp << "\t{0x"
             << charSet[(desc.unicodeStart >> 12) & 0xF]
@@ -227,7 +228,7 @@ void writeFile(const std::string& fontPath, int pixelHeight, const std::string& 
             << charSet[desc.subtableAddr & 0xF] << "},\n";
     }
     cpp << "};\n\n";
-    cpp << "const uint8_t " << outputName << "_glyph[] = {\n\t";
+    cpp << "const uint8_t " << outputName << "_glyph[] PROGMEM = {\n\t";
     size_t idx = 0;
     for (auto byte: cmapSubtables) {
         idx++;
