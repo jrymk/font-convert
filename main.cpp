@@ -110,8 +110,6 @@ int main(int argc, char* argv[]) {
                 error = FT_Set_Pixel_Sizes(face, 0, outputSize);
                 if (error)
                     errorMessage += std::string("FT_New_Face error: " + getErrorString(error) + "\n");
-                std::cerr << face->num_glyphs << " glyphs, assume " << outputSize << "*" << outputSize << " bitmaps, it will be "
-                          << face->num_glyphs * outputSize * outputSize / 8 / 1024. / 1024. << "MB\n";
             }
 
             /// PREVIEW
@@ -401,11 +399,12 @@ int main(int argc, char* argv[]) {
 
             ui.cursor = vec(listLeft + 4, 12);
             ui.drawRect(vec(listLeft, 0), vec(ui.getSize().x - listLeft, rangeHeaderHeight), bgColor);
-            if (ui.button(ui.cursor, "Save", bgColor, buttonOn, 24)) {
+            if (ui.button(ui.cursor, "Save", bgColor, buttonOn, 20)) {
                 if (leftMouseDown) {
-                    writeFile(fonts[selectedFontIdx].first, outputSize);
+                    writeFile(fonts[selectedFontIdx].first, outputSize, outputNameGen(face->family_name, face->style_name, outputSize));
                 }
             }
+            ui.drawText(ui.cursor, format("output file: %s.h", outputNameGen(face->family_name, face->style_name, outputSize).c_str()), fgColor, 20);
 
         }
 

@@ -1,4 +1,5 @@
 # font-convert
+
 Convert fonts to mono bitmap fonts in C files for embedded systems.
 
 Copy FreeType source to root. Edit CMakeLists.txt accordingly if it is not ./freetype-2.9
@@ -9,10 +10,15 @@ Pure SFML without other UI libraries. Simple load the CMake project, it will fet
 
 ![image](https://github.com/jrymk/font-convert/assets/39593345/8d38001f-4da5-4bb8-ad10-1c8bb164fc42)
 
-I tried using LVGLs nice font converter, but the browser version hangs when converting CJK fonts, and the LVGL font files are not really intended for use outside of LVGL, with tons of LVGL specific defines and dependencies. Therefore I decided to just write my own.\
-For reference, HarmonyOS Sans TC Thin rendered at 20 pixels tall takes 846KB of space for all the 14753 glyphs. There is no compression, but LVGL also doesn't have it for 1bpp fonts.
+I tried using LVGLs nice font converter, but the browser version hangs when converting CJK fonts, and the LVGL font files are not really intended for use
+outside of LVGL, with tons of LVGL specific defines and dependencies. Therefore, I decided to just write my own.\
+For reference, HarmonyOS Sans TC Thin rendered at 20 pixels tall takes 846KB of space for all the 14753 glyphs. There is no compression, but LVGL also doesn't
+have it for 1bpp fonts.
 
 ### Glyph reading
+
+Include .font.h file in this repository to where the fonts will go in your project.
+
 ```cpp
 for (auto ch: str) {
     // binary search the character map range
@@ -48,6 +54,7 @@ for (auto ch: str) {
 ```
 
 ### Output example
+
 ```cpp
 #ifndef BARLOW_20_H
 #define BARLOW_20_H
@@ -105,5 +112,7 @@ const sq::Font barlow_20 = {
 };
 
 #endif
-
 ```
+
+Binary file output is included in 'output.bin'. Reading this file is the same as with the .h file, with subtable_num, descriptors and glyphs concatenated
+together.

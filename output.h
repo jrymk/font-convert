@@ -34,7 +34,35 @@ struct SubtableDescriptor {
                        uint32_t subtableAddr) : unicodeStart(unicodeStart), unicodeNum(unicodeNum), subtableAddr(subtableAddr) {}
 };
 
-void writeFile(const std::string& fontPath, int pixelHeight) {
+std::string outputNameGen(const std::string& family, const std::string& style, int size) {
+    std::string out;
+    for (auto c: family) {
+        if (out.empty() && !std::isalpha(c)) continue;
+        if (std::isalnum(c))
+            out.push_back((char) std::tolower(c));
+        else
+            out.push_back('_');
+    }
+    out.push_back('_');
+    for (auto c: style) {
+        if (std::isalnum(c))
+            out.push_back((char) std::tolower(c));
+        else
+            out.push_back('_');
+    }
+    out.push_back('_');
+    out.append(std::to_string(size));
+    return out;
+}
+
+std::string toUpper(const std::string& str) {
+    std::string out;
+    for (auto c: str)
+        out.push_back(std::toupper(c));
+    return out;
+}
+
+void writeFile(const std::string& fontPath, int pixelHeight, const std::string& outputName) {
     std::ofstream file;
     file.open("output.bin", std::ios::out | std::ios::binary);
 
@@ -173,17 +201,15 @@ void writeFile(const std::string& fontPath, int pixelHeight) {
               << "KB\n";
 
     std::ofstream cpp;
-    cpp.open("output.cpp", std::ios::out);
-    std::ifstream bin;
-    bin.open("output.bin", std::ios::in | std::ios::binary);
+    cpp.open(outputName + ".h", std::ios::out);
     const char* charSet = "0123456789ABCDEF";
 
-    cpp << "#ifndef OUTPUT_H" << "\n";
-    cpp << "#define OUTPUT_H" << "\n";
+    cpp << "#ifndef " << toUpper(outputName) << "_H" << "\n";
+    cpp << "#define " << toUpper(outputName) << "_H" << "\n";
     cpp << "" << "\n";
     cpp << "#include \"font.h\"" << "\n";
     cpp << "" << "\n";
-    cpp << "const sq::FontSubtableDescriptor output_desc[] = {\n";
+    cpp << "const sq::FontSubtableDescriptor " << outputName << "_desc[] = {\n";
     for (auto& desc: cmapSubtableDescs) {
         cpp << "\t{0x"
             << charSet[(desc.unicodeStart >> 12) & 0xF]
@@ -201,21 +227,20 @@ void writeFile(const std::string& fontPath, int pixelHeight) {
             << charSet[desc.subtableAddr & 0xF] << "},\n";
     }
     cpp << "};\n\n";
-    cpp << "const uint8_t output_glyph[] = {\n\t";
+    cpp << "const uint8_t " << outputName << "_glyph[] = {\n\t";
     size_t idx = 0;
     for (auto byte: cmapSubtables) {
         idx++;
         cpp << "0x" << charSet[(byte >> 4) & 0xF] << charSet[byte & 0xF] << (idx % 16 == 0 ? ",\n\t\t" : ", ");
     }
     cpp << "\n};\n\n";
-    cpp << "const sq::Font output = {" << "\n\t";
+    cpp << "const sq::Font " << outputName << " = {" << "\n\t";
     cpp << int(cmapSubtableNum) << ",\n"
-        << "\toutput_desc,\n\toutput_glyph\n};";
+        << "\t" << outputName << "_desc,\n\t" << outputName << "_glyph\n};";
     cpp << "\n\n";
     cpp << "#endif" << "\n";
 
     cpp.close();
-    bin.close();
 }
 
 #endif //FONTCONVERT_OUTPUT_H
