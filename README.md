@@ -3,6 +3,8 @@ Convert fonts to mono bitmap fonts in C files for embedded systems.
 
 Copy FreeType source to root. Edit CMakeLists.txt accordingly if it is not ./freetype-2.9
 
+Pure SFML without other UI libraries. Simple load the CMake project, it will fetch SFML automatically.
+
 ![image](https://github.com/jrymk/font-convert/assets/39593345/a92dbc20-1809-466d-8846-2b96e216efb3)
 
 ![image](https://github.com/jrymk/font-convert/assets/39593345/8d38001f-4da5-4bb8-ad10-1c8bb164fc42)
