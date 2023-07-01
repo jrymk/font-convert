@@ -206,11 +206,12 @@ void writeFile(const std::string& fontPath, int pixelHeight, const std::string& 
     cpp << "#ifndef " << toUpper(outputName) << "_H" << "\n";
     cpp << "#define " << toUpper(outputName) << "_H" << "\n";
     cpp << "" << "\n";
-    cpp << "#include \"font.h\"" << "\n";
+    cpp << "#include \"sqFont.h\"" << "\n";
     cpp << "" << "\n";
     cpp << "// Binary size: " << (2 + cmapSubtableDesc.size() + cmapSubtables.size() + 1023) / 1024 << "KB" << "\n";
+    cpp << "// Glyph count: " << face->num_glyphs << "\n";
     cpp << "" << "\n";
-    cpp << "const sq::FontSubtableDescriptor " << outputName << "_desc[] PROGMEM = {\n";
+    cpp << "SQ_FONT_DESCRIPTOR(" << outputName << ") = {\n";
     for (auto& desc: cmapSubtableDescs) {
         cpp << "\t{0x"
             << charSet[(desc.unicodeStart >> 12) & 0xF]
@@ -228,16 +229,14 @@ void writeFile(const std::string& fontPath, int pixelHeight, const std::string& 
             << charSet[desc.subtableAddr & 0xF] << "},\n";
     }
     cpp << "};\n\n";
-    cpp << "const uint8_t " << outputName << "_glyph[] PROGMEM = {\n\t";
+    cpp << "SQ_FONT_GLYPH(" << outputName << ") = {\n";
     size_t idx = 0;
     for (auto byte: cmapSubtables) {
         idx++;
         cpp << "0x" << charSet[(byte >> 4) & 0xF] << charSet[byte & 0xF] << (idx % 16 == 0 ? ",\n\t\t" : ", ");
     }
     cpp << "\n};\n\n";
-    cpp << "const sq::Font " << outputName << " = {" << "\n\t";
-    cpp << int(cmapSubtableNum) << ",\n"
-        << "\t" << outputName << "_desc,\n\t" << outputName << "_glyph\n};";
+    cpp << "SQ_FONT_DECLARE(" << outputName << ", " << cmapSubtableNum << ");\n";
     cpp << "\n\n";
     cpp << "#endif" << "\n";
 

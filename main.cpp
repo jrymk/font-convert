@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         static bool displaySelectedFont = false;
         static sf::Font sfSelectedFont;
         static int outputSize = 16;
-        static std::wstring previewString = L"待辦事項 (192)";
+        static std::wstring previewString = L"待辦事項 重修微積分4 明天 12:00";
         static bool reloadFace = false;
         float fontSectionHeaderHeight = ui.getSize().y * 0.65;
         float fontSectionWidth = ui.getSize().x * 0.3;
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
 
             if (ui.button(ui.cursor, "Edit text", sf::Color::White, buttonOn, 17)) {
                 ui.tooltip("Change the preview text, unicode is allowed\nClick to input in terminal (this window will become unresponsive)");
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+                if (leftMouseDown) {
                     std::cout << "Preview text: ";
                     _setmode(_fileno(stdin), _O_U16TEXT);
                     std::wcin >> previewString;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
             if (ui.button(ui.cursor, format("Display size: %d*%d", displayPreviewWidth, displayPreviewHeight), sf::Color::White, buttonOn, 17)) {
                 ui.tooltip(
                         "See how the size of the text compares to a physical display (grey shaded area)\nClick to input in terminal (this window will become unresponsive)");
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+                if (leftMouseDown) {
                     std::cout << "Display size:\n  w: ";
                     std::cin >> displayPreviewWidth;
                     std::cout << "  h: ";
